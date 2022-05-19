@@ -44,7 +44,6 @@ include_directories(
 )
 
 
-# add_executable(${PROJECT_NAME}_slice_node src/main_node.cpp src/mlcpp.cpp)
 add_executable(${PROJECT_NAME}_slice_node src/main_node.cpp)
 target_link_libraries(${PROJECT_NAME}_slice_node ${catkin_LIBRARIES} ${OpenCV_LIBS} ${PCL_LIBRARIES} ${OpenMP_LIBS}
   pcl_common
