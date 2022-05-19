@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="pcd_file_name" default="$(find mlcpp)/resource/1875935000.pcd"/>
+
+  <!-- Rviz  -->
+  <node name="visualizer" pkg="rviz" type="rviz" output="screen" args="-d $(find mlcpp)/rviz.rviz"/>
+
+
+  <!-- Basic params  -->
+  <param name="/computing_time_debug" value="true"/>
+  <param name="/infile" value="$(arg pcd_file_name)"/>
+  <rosparam param="/cam_intrinsic">[640, 480, 319.998, 319.998, 320.5, 240.5]</rosparam> <!-- width, height, f_x, f_y, c_x, c_y -->
+
+  <!-- MLCPP params -->
+  <param name="/slice_height" value="8.0"/>
+
+  <!-- main node  -->
+  <node name="mlcpp_node" pkg="mlcpp" type="mlcpp_slice_node" output="screen"/>
+  <!-- launch-prefix="gdb -ex run --> <!--args" -->
+
+
+</launch>

@@ -22,3 +22,7 @@ catkin build
 <br>
 
 ## How to run
++ Edit some parameters in `main.launch` file
+```bash
+roslaunch mlcpp main.launch
+```

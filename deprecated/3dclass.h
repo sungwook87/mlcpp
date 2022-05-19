@@ -1,3 +1,7 @@
+#ifndef THREE_D_CLASS_H
+#define THREE_D_CLASS_H
+
+
 #include <opencv2/opencv.hpp>
 #include <vector>
 /* Octopoint Center must be over zero.
@@ -96,3 +100,6 @@ class OctoPoints{
         cv::Point2d Map_size; // Map_size : X,Y
         double Voxel_size;
 };
+
+
+#endif

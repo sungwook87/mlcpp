@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.4)
 project(mlcpp)
 
 set(CMAKE_BUILD_TYPE "Release")
-set(CMAKE_CXX_FLAGS "-std=c++14") # if want to use auto in Lamda function, should be more recent than c++14
+set(CMAKE_CXX_FLAGS "-std=c++14")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -g")
 
 find_package(catkin REQUIRED COMPONENTS
@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   sensor_msgs
   geometry_msgs
-#   mav_msgs
+  nav_msgs
   image_geometry
   pcl_ros
   pcl_conversions
@@ -19,7 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(OpenMP REQUIRED)
 find_package(PCL REQUIRED)
-find_package(OpenCV 3 REQUIRED)
+find_package(OpenCV REQUIRED)
 
 if(OpenCV_FOUND)
   message(WARNING "OpenCV Found: " ${OpenCV_VERSION})
@@ -44,21 +44,10 @@ include_directories(
 )
 
 
-add_executable(${PROJECT_NAME}_node src/Viewpoint_calc.cpp include/stdafx.cpp)
-target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES} ${OpenCV_LIBS} ${PCL_LIBRARIES} ${OpenMP_LIBS}
-  pcl_common
-  pcl_visualization
-  pcl_registration
-  pcl_filters
-  pcl_sample_consensus
-  pcl_octree
-  pcl_io
-)
-
-add_executable(${PROJECT_NAME}_slice_node src/Viewpoint_calc_slice.cpp include/stdafx.cpp)
+# add_executable(${PROJECT_NAME}_slice_node src/main_node.cpp src/mlcpp.cpp)
+add_executable(${PROJECT_NAME}_slice_node src/main_node.cpp)
 target_link_libraries(${PROJECT_NAME}_slice_node ${catkin_LIBRARIES} ${OpenCV_LIBS} ${PCL_LIBRARIES} ${OpenMP_LIBS}
   pcl_common
-  pcl_visualization
   pcl_registration
   pcl_filters
   pcl_sample_consensus
