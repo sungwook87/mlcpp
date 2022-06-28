@@ -73,6 +73,7 @@ class mlcpp_class{
     double m_view_pt_each_dist = 2.0; //between each viewpoints
     double m_view_overlap = 0.1; //overlap bet two viewpoints
     double m_slice_height = 8.0;
+    int m_TSP_trial = 100;
     ///// MLCPP variables
     image_geometry::PinholeCameraModel m_camera_model;
     pcl::NormalEstimationOMP<pcl::PointXYZ, pcl::Normal> m_normal_estimator;
@@ -134,6 +135,7 @@ mlcpp_class::mlcpp_class(const ros::NodeHandle& n) : m_nh(n){
   m_nh.param("/view_pt_dist", m_view_pt_dist, 10.0);
   m_nh.param("/view_pt_each_dist", m_view_pt_each_dist, 2.0);
   m_nh.param("/view_overlap", m_view_overlap, 0.1);
+  m_nh.param("/TSP_trial", m_TSP_trial, 100);
 
   //sub
   m_path_calc_sub = m_nh.subscribe<std_msgs::Empty>("/calculate_cpp", 3, &mlcpp_class::calc_cb, this);
@@ -570,7 +572,7 @@ double mlcpp_class::TwoOptTSP(pcl::PointCloud<pcl::PointNormal>::Ptr pclarray)
   if (m_debug_mode){
     ROS_INFO("Initial distance: %.2f", best_distance);
   }
-  while (improve<300) //TODO parameterlize
+  while (improve<m_TSP_trial)
   {
     for ( int i = 1; i <size - 2; i++ )
     {

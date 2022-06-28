@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
 
-  <arg name="pcd_file_name" default="$(find mlcpp)/resource/1875935000.pcd"/>
+  <arg name="pcd_file_name" default="$(find mlcpp)/resource/bigben1.pcd"/>
 
   <!-- Rviz  -->
   <node name="visualizer" pkg="rviz" type="rviz" output="screen" args="-d $(find mlcpp)/rviz.rviz"/>
@@ -13,12 +13,13 @@
   <rosparam param="/cam_intrinsic">[640, 480, 319.998, 319.998, 320.5, 240.5]</rosparam> <!-- width, height, f_x, f_y, c_x, c_y -->
 
   <!-- MLCPP params -->
-  <param name="/slice_height" value="8.0"/> <!-- slicing target PCL every this meters -->
+  <param name="/slice_height" value="7.0"/> <!-- slicing target PCL every this meters -->
   <param name="/max_dist" value="15.0"/> <!-- between viewpoint and target pcl point -->
   <param name="/max_angle" value="60.0"/> <!-- between viewpoint and target pcl point's normal -->
   <param name="/view_pt_dist" value="10.0"/> <!-- from points -->
   <param name="/view_pt_each_dist" value="2.0"/> <!-- between each viewpoints -->
   <param name="/view_overlap" value="0.1"/> <!-- overlap bet two viewpoints -->
+  <param name="/TSP_trial" value="300"/>
 
   <!-- main node  -->
   <node name="mlcpp_node" pkg="mlcpp" type="mlcpp_slice_node" output="screen"/>
