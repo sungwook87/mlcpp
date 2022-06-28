@@ -311,7 +311,6 @@ void mlcpp_class::calc_cb(const std_msgs::Empty::ConstPtr& msg){
     pass.setFilterLimits (minpt_z,minpt_z+m_slice_height);
     pass.filter (*Sliced_ptnorm);
 
-
     while(!finish)
     {
       if (minpt_z+m_slice_height >= maxpt.z){ // Check if last layer
@@ -567,7 +566,6 @@ double mlcpp_class::PclArrayCost(pcl::PointCloud<pcl::PointNormal>::Ptr pclarray
 double mlcpp_class::TwoOptTSP(pcl::PointCloud<pcl::PointNormal>::Ptr pclarray)
 {
   pcl::PointCloud<pcl::PointNormal> temp_Array;
-  pcl::copyPointCloud(*pclarray,temp_Array);
   int size = pclarray->points.size();
   int improve = 0;
   double best_distance = PclArrayCost(pclarray);

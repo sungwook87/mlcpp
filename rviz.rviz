@@ -218,6 +218,29 @@ Visualization Manager:
       Topic: /mlcpp_path
       Unreliable: false
       Value: true
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 252; 233; 79
+      Enabled: true
+      Head Diameter: 0.30000001192092896
+      Head Length: 0.20000000298023224
+      Length: 1.5
+      Line Style: Billboards
+      Line Width: 0.4000000059604645
+      Name: MLCPP_path_all_TSP
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: Axes
+      Radius: 0.30000001192092896
+      Shaft Diameter: 0.10000000149011612
+      Shaft Length: 0.10000000149011612
+      Topic: /mlcpp_path_all_TSP
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 0; 0; 0
@@ -253,18 +276,18 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 4.260615348815918
-        Y: 2.5199623107910156
-        Z: 49.98005294799805
+        X: 6.7876105308532715
+        Y: -4.237425804138184
+        Z: 49.537567138671875
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.13539856672286987
+      Pitch: 0.0753987580537796
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.2273190021514893
+      Yaw: 3.5223474502563477
     Saved: ~
 Window Geometry:
   Displays:
