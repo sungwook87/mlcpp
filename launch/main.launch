@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
 
-  <arg name="pcd_file_name" default="$(find mlcpp)/resource/bigben2.pcd"/>
+  <arg name="pcd_file_name" default="$(find mlcpp)/resource/bigben1.pcd"/>
 
   <!-- Rviz  -->
   <node name="visualizer" pkg="rviz" type="rviz" output="screen" args="-d $(find mlcpp)/rviz.rviz"/>
@@ -10,7 +10,7 @@
   <!-- Basic params  -->
   <param name="/debug_mode" value="false"/>
   <param name="/infile" value="$(arg pcd_file_name)"/>
-  <rosparam param="/cam_intrinsic">[320, 240, 159.999, 159.999, 160.5, 120.5]</rosparam> <!-- width, height, f_x, f_y, c_x, c_y -->
+  <rosparam param="/cam_intrinsic">[640, 480, 319.998, 319.998, 320.5, 240.5]</rosparam> <!-- width, height, f_x, f_y, c_x, c_y -->
 
   <!-- MLCPP params -->
   <param name="/slice_height" value="7.0"/> <!-- slicing target PCL every this meters -->

@@ -293,6 +293,8 @@ void mlcpp_class::calc_cb(const std_msgs::Empty::ConstPtr& msg){
     m_all_layer_path.header.stamp = ros::Time::now();
     m_all_layer_path.header.frame_id = "map";
     m_all_layer_path.poses.clear();
+    pcl::PointNormal prev_layer_endpoint;
+    
     ////// calculate Coverage Path
     ///Make Initial viewpoint
     bool finish = false;
@@ -428,20 +430,66 @@ void mlcpp_class::calc_cb(const std_msgs::Empty::ConstPtr& msg){
         m_cloud_none_viewed.push_back(none_view_pcl);
       }
 
-      /// Solve TSP among downsampled viewpoints
-      OrdreringTSP(Voxed_Sliced_Admitted_Viewpt);
-      double best_distance = TwoOptTSP(Voxed_Sliced_Admitted_Viewpt);
-      for(int idx=0; idx<Voxed_Sliced_Admitted_Viewpt->points.size(); ++idx)
-      {
-        pcl::PointXYZ optimized_viewpt;
-        optimized_viewpt.x = Voxed_Sliced_Admitted_Viewpt->points[idx].x;
-        optimized_viewpt.y = Voxed_Sliced_Admitted_Viewpt->points[idx].y;
-        optimized_viewpt.z = Voxed_Sliced_Admitted_Viewpt->points[idx].z;
-        m_optimized_view_point.push_back(optimized_viewpt);
-        m_all_layer_path.poses.push_back(single_pclnormal_to_posestamped(Voxed_Sliced_Admitted_Viewpt->points[idx]));
-      }
-      ROS_WARN("current layer %d, TSP %d points, leng: %.2f m", current_layer, Voxed_Sliced_Admitted_Viewpt->points.size(), best_distance);
       
+      if (Voxed_Sliced_Admitted_Viewpt->points.size() > 0){
+        /// Solve TSP among downsampled viewpoints
+        OrdreringTSP(Voxed_Sliced_Admitted_Viewpt);
+        double best_distance = TwoOptTSP(Voxed_Sliced_Admitted_Viewpt);
+
+        if (current_layer>1){        
+          Eigen::Vector3d current_first(Voxed_Sliced_Admitted_Viewpt->points[0].x, Voxed_Sliced_Admitted_Viewpt->points[0].y, Voxed_Sliced_Admitted_Viewpt->points[0].z);
+          Eigen::Vector3d current_end(Voxed_Sliced_Admitted_Viewpt->points[Voxed_Sliced_Admitted_Viewpt->points.size()-1].x, Voxed_Sliced_Admitted_Viewpt->points[Voxed_Sliced_Admitted_Viewpt->points.size()-1].y, Voxed_Sliced_Admitted_Viewpt->points[Voxed_Sliced_Admitted_Viewpt->points.size()-1].z) ;
+          Eigen::Vector3d prev_layer_endpoint_points(prev_layer_endpoint.x, prev_layer_endpoint.y, prev_layer_endpoint.z);
+          Eigen::Vector3d prev_layer_endpoint_normal(prev_layer_endpoint.normal[0], prev_layer_endpoint.normal[1], prev_layer_endpoint.normal[2]);
+
+          //// forward
+          if ( fabs( (current_first-prev_layer_endpoint_points).normalized().dot(prev_layer_endpoint_normal.normalized()) ) < 
+            fabs( (current_end-prev_layer_endpoint_points).normalized().dot(prev_layer_endpoint_normal.normalized()) ) )
+          {
+            for(int idx=0; idx<Voxed_Sliced_Admitted_Viewpt->points.size(); ++idx)
+            {
+              pcl::PointXYZ optimized_viewpt;
+              optimized_viewpt.x = Voxed_Sliced_Admitted_Viewpt->points[idx].x;
+              optimized_viewpt.y = Voxed_Sliced_Admitted_Viewpt->points[idx].y;
+              optimized_viewpt.z = Voxed_Sliced_Admitted_Viewpt->points[idx].z;
+              m_optimized_view_point.push_back(optimized_viewpt);
+              m_all_layer_path.poses.push_back(single_pclnormal_to_posestamped(Voxed_Sliced_Admitted_Viewpt->points[idx]));
+            }
+            prev_layer_endpoint = Voxed_Sliced_Admitted_Viewpt->points[Voxed_Sliced_Admitted_Viewpt->points.size()-1];
+          }
+          //// reverse
+          else
+          {
+            for(int idx=Voxed_Sliced_Admitted_Viewpt->points.size()-1; idx>=0; --idx)
+            {
+              pcl::PointXYZ optimized_viewpt;
+              optimized_viewpt.x = Voxed_Sliced_Admitted_Viewpt->points[idx].x;
+              optimized_viewpt.y = Voxed_Sliced_Admitted_Viewpt->points[idx].y;
+              optimized_viewpt.z = Voxed_Sliced_Admitted_Viewpt->points[idx].z;
+              m_optimized_view_point.push_back(optimized_viewpt);
+              m_all_layer_path.poses.push_back(single_pclnormal_to_posestamped(Voxed_Sliced_Admitted_Viewpt->points[idx]));
+            }
+            prev_layer_endpoint = Voxed_Sliced_Admitted_Viewpt->points[0];
+          }
+        }
+        else{
+          for(int idx=0; idx<Voxed_Sliced_Admitted_Viewpt->points.size(); ++idx)
+          {
+            pcl::PointXYZ optimized_viewpt;
+            optimized_viewpt.x = Voxed_Sliced_Admitted_Viewpt->points[idx].x;
+            optimized_viewpt.y = Voxed_Sliced_Admitted_Viewpt->points[idx].y;
+            optimized_viewpt.z = Voxed_Sliced_Admitted_Viewpt->points[idx].z;
+            m_optimized_view_point.push_back(optimized_viewpt);
+            m_all_layer_path.poses.push_back(single_pclnormal_to_posestamped(Voxed_Sliced_Admitted_Viewpt->points[idx]));
+          }
+          prev_layer_endpoint = Voxed_Sliced_Admitted_Viewpt->points[Voxed_Sliced_Admitted_Viewpt->points.size()-1];
+        }
+        ROS_WARN("current layer %d, TSP %d points, leng: %.2f m", current_layer, Voxed_Sliced_Admitted_Viewpt->points.size(), best_distance);
+      }
+      else {
+        ROS_WARN("current layer %d, no admitted points, skipping", current_layer);
+      }
+
       ///PCL Slice with Z axis value (untill maxpt.z)
       minpt_z += m_slice_height;
       pass.setFilterFieldName ("z");
@@ -560,10 +608,11 @@ double mlcpp_class::PclArrayCost(pcl::PointCloud<pcl::PointNormal>::Ptr pclarray
     Eigen::Vector3d current(pclarray->points[i-1].x, pclarray->points[i-1].y, pclarray->points[i-1].z);
     Eigen::Vector3d current_normal(pclarray->points[i-1].normal[0], pclarray->points[i-1].normal[1], pclarray->points[i-1].normal[2]);
     Eigen::Vector3d next(pclarray->points[i].x, pclarray->points[i].y, pclarray->points[i].z);
-    double dist = (next - current).norm();
+    Eigen::Vector3d direction_vector = next - current;
+    double dist = direction_vector.norm();
 
     distance_out += dist;
-    cost = cost + dist + dist*fabs(current.normalized().dot(current_normal.normalized())); // penalty on penetrating through pcd target
+    cost = cost + dist + dist*fabs(direction_vector.normalized().dot(current_normal.normalized())); // penalty on penetrating through pcd target
   }
   distance = distance_out;
   return cost;
