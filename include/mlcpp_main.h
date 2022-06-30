@@ -105,7 +105,7 @@ class mlcpp_class{
     void flip_normal(pcl::PointXYZ base,pcl::PointXYZ center,float & nx,float & ny, float & nz);
     Eigen::Matrix3d RPYtoR(double roll, double pitch, double yaw);
     void TwoOptSwap(pcl::PointCloud<pcl::PointNormal>::Ptr pclarray, int start, int finish);
-    double PclArrayCost(pcl::PointCloud<pcl::PointNormal>::Ptr pclarray);
+    double PclArrayCost(pcl::PointCloud<pcl::PointNormal>::Ptr pclarray, double &distance);
     double TwoOptTSP(pcl::PointCloud<pcl::PointNormal>::Ptr pclarray);
     void OrdreringTSP(pcl::PointCloud<pcl::PointNormal>::Ptr pclarray);
 
@@ -551,16 +551,21 @@ void mlcpp_class::TwoOptSwap(pcl::PointCloud<pcl::PointNormal>::Ptr pclarray,int
   pcl::copyPointCloud(temp_Array,*pclarray);
 }
 
-double mlcpp_class::PclArrayCost(pcl::PointCloud<pcl::PointNormal>::Ptr pclarray)
+double mlcpp_class::PclArrayCost(pcl::PointCloud<pcl::PointNormal>::Ptr pclarray, double &distance)
 {
   double cost = 0;
+  double distance_out = 0;
   for(int i=1;i<pclarray->points.size();i++)
   {
-    double x_dist = pclarray->points[i].x -  pclarray->points[i-1].x;
-    double y_dist = pclarray->points[i].y -  pclarray->points[i-1].y;
-    double z_dist = pclarray->points[i].z -  pclarray->points[i-1].z;
-    cost += sqrt( x_dist*x_dist + y_dist*y_dist + z_dist*z_dist);
+    Eigen::Vector3d current(pclarray->points[i-1].x, pclarray->points[i-1].y, pclarray->points[i-1].z);
+    Eigen::Vector3d current_normal(pclarray->points[i-1].normal[0], pclarray->points[i-1].normal[1], pclarray->points[i-1].normal[2]);
+    Eigen::Vector3d next(pclarray->points[i].x, pclarray->points[i].y, pclarray->points[i].z);
+    double dist = (next - current).norm();
+
+    distance_out += dist;
+    cost = cost + dist + dist*fabs(current.normalized().dot(current_normal.normalized())); // penalty on penetrating through pcd target
   }
+  distance = distance_out;
   return cost;
 }
 
@@ -570,9 +575,10 @@ double mlcpp_class::TwoOptTSP(pcl::PointCloud<pcl::PointNormal>::Ptr pclarray)
   pcl::copyPointCloud(*pclarray,temp_Array);
   int size = pclarray->points.size();
   int improve = 0;
-  double best_distance = PclArrayCost(pclarray);
+  double best_distance = 0.0;
+  double best_cost = PclArrayCost(pclarray, best_distance);
   if (m_debug_mode){
-    ROS_INFO("Initial distance: %.2f", best_distance);
+    ROS_INFO("Initial distance: %.2f", best_cost);
   }
   while (improve<m_TSP_trial)
   {
@@ -581,12 +587,14 @@ double mlcpp_class::TwoOptTSP(pcl::PointCloud<pcl::PointNormal>::Ptr pclarray)
       for ( int k = i + 1; k < size-2; k++)
       {
         TwoOptSwap( pclarray, i,k );
-        double new_distance = PclArrayCost(pclarray);
-        if ( new_distance < best_distance )
+        double new_distance = 0.0;
+        double new_cost = PclArrayCost(pclarray, new_distance);
+        if ( new_cost < best_cost )
         {
           improve = 0;
           pcl::copyPointCloud(*pclarray,temp_Array);
           best_distance = new_distance;
+          best_cost = new_cost;
         }
       }
     }
@@ -594,7 +602,7 @@ double mlcpp_class::TwoOptTSP(pcl::PointCloud<pcl::PointNormal>::Ptr pclarray)
   }
   pcl::copyPointCloud(temp_Array,*pclarray);
   if (m_debug_mode){
-    ROS_INFO("Final distance: %.2f", best_distance);
+    ROS_INFO("Final distance: %.2f, cost: %.2f", best_distance, best_cost);
     ROS_INFO("TwoOptTSP Finished");
   }
   return best_distance;
