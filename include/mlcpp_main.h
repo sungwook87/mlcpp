@@ -504,7 +504,7 @@ void mlcpp_class::calc_cb(const std_msgs::Empty::ConstPtr& msg){
 
   std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
   double duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() / 1e3;
-  ROS_WARN("MLCPP calculation: %.3f [ms]", duration);
+  ROS_WARN("MLCPP calculation: %.3f [ms], path len: %.3f", duration, path_length(m_all_layer_path));
 }
 
 void mlcpp_class::visualizer_timer_func(const ros::TimerEvent& event){

@@ -6,6 +6,8 @@
 #include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <nav_msgs/Path.h>
+
 
 ///// PCL
 #include <pcl/point_types.h>
@@ -23,6 +25,20 @@ using namespace Eigen;
 
 
 ////////////////////////// utils
+double euclidean_dist(const geometry_msgs::Pose &pos1, const geometry_msgs::Pose &pos2)
+{
+  return sqrt(pow(pos1.position.x-pos2.position.x,2) + pow(pos1.position.y-pos2.position.y,2) + pow(pos1.position.z-pos2.position.z,2));
+}
+double path_length(const nav_msgs::Path &path_in)
+{
+  double leng=0.0;
+  for (int i = 0; i < path_in.poses.size()-1; ++i)
+  {
+    leng += euclidean_dist(path_in.poses[i].pose, path_in.poses[i+1].pose);
+  }
+  return leng;
+}
+
 ////////// PCL
 template <typename T>
 sensor_msgs::PointCloud2 cloud2msg(const pcl::PointCloud<T> &cloud, string frame_id = "map")

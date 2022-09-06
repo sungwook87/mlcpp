@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
 
-  <arg name="pcd_file_name" default="$(find mlcpp)/resource/bigben1.pcd"/>
+  <arg name="pcd_file_name" default="$(find mlcpp)/resource/bigben2.pcd"/>
 
   <!-- Rviz  -->
   <node name="visualizer" pkg="rviz" type="rviz" output="screen" args="-d $(find mlcpp)/rviz.rviz"/>
@@ -14,11 +14,11 @@
 
   <!-- MLCPP params -->
   <param name="/slice_height" value="7.0"/> <!-- slicing target PCL every this meters -->
-  <param name="/max_dist" value="16.0"/> <!-- between viewpoint and target pcl point -->
-  <param name="/max_angle" value="75.0"/> <!-- between viewpoint and target pcl point's normal -->
-  <param name="/view_pt_dist" value="10.0"/> <!-- from points -->
+  <param name="/max_dist" value="18.0"/> <!-- between viewpoint and target pcl point -->
+  <param name="/max_angle" value="45.0"/> <!-- between viewpoint and target pcl point's normal -->
+  <param name="/view_pt_dist" value="8.0"/> <!-- from points -->
   <param name="/view_pt_each_dist" value="2.0"/> <!-- between each viewpoints -->
-  <param name="/view_overlap" value="0.4"/> <!-- overlap bet two viewpoints -->
+  <param name="/view_overlap" value="0.4"/> <!-- (1-this value): max overlap between two viewpoints -->
   <param name="/TSP_trial" value="500"/>
 
   <!-- main node  -->
